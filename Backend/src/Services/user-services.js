@@ -9,7 +9,8 @@ class userService {
 
   async create(data) {
     try {
-      if (!data.name || !data.email || !data.password) {
+      console.log(data)
+      if (!data.fullname.firstname|| !data.fullname.lastname || !data.email || !data.password) {
         throw { message: "incomplete user credential" };
       }
       const user = await this.UserRepo.CreateUser(data);

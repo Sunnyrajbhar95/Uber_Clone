@@ -8,14 +8,18 @@ const {
 } = require("../Controller/user-controller");
 const isAuth = require("../Middleware");
 const { body } = require("express-validator");
-const {CreateCaptain,login,capProfile}=require("../Controller/captain-controller")
-const isCaptain=require("../Middleware/captainAuth")
+const {
+  CreateCaptain,
+  login,
+  capProfile,
+} = require("../Controller/captain-controller");
+const isCaptain = require("../Middleware/captainAuth");
 
 router.post(
   "/signup",
   [
     // Validation rules
-    body("name")
+    body("fullname")
       .isLength({ min: 5 })
       .withMessage("Username must be at least 5 characters long"),
     body("email").isEmail().withMessage("Please provide a valid email"),
@@ -25,7 +29,7 @@ router.post(
   ],
   SignUp
 );
-router.get(
+router.post(
   "/signin",
   [
     // Validation rules
@@ -41,9 +45,8 @@ router.get("/profile", isAuth, Profile);
 
 router.get("/logout", isAuth, Logout);
 
-router.post("/captain",CreateCaptain);
-router.get("/login",login),
-router.get("/capprofile",isCaptain,capProfile)
-router.get("/capLogout",isCaptain,Logout)
+router.post("/captain", CreateCaptain);
+router.get("/login", login), router.get("/capprofile", isCaptain, capProfile);
+router.get("/capLogout", isCaptain, Logout);
 
 module.exports = router;

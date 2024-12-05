@@ -1,11 +1,12 @@
 const { response } = require("express");
 const userService = require("../Services/user-services");
 const UserServices = new userService();
-const { validationResult } = require("express-validator");
+const { validationResult, body } = require("express-validator");
 const BlacklistToken=require("../Model/blacklistedToken")
 
 const SignUp = async (req, res) => {
   try {
+    
     const error = validationResult(req);
     if (!error.isEmpty()) {
       return res.status(400).json({
@@ -16,7 +17,7 @@ const SignUp = async (req, res) => {
     const user = await UserServices.create(req.body);
     return res.status(200).json({
       user: {
-        name: user.name,
+        fullname:user.fullname,
         email: user.email,
       },
       success: true,

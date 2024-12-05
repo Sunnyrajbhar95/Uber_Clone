@@ -5,7 +5,10 @@ class userRepo {
     try {
       console.log(data);
       const user = await User.create({
-        name: data.name,
+        fullname: {
+          firstname:data.fullname.firstname,
+          lastname:data.fullname.firstname,
+        },
         email: data.email,
         password: data.password,
       });
