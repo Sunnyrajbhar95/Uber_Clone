@@ -6,12 +6,12 @@ const isAuth = async (req, res, next) => {
   try {
     const token = req.headers["x-access"];
 
-    const isBlacklisted=await BlacklistToken.findOne({token:token})
-    if(isBlacklisted){
+    const isBlacklisted = await BlacklistToken.findOne({ token: token });
+    if (isBlacklisted) {
       return res.status(501).json({
-         success: true,
-         message: "unAuthorized",
-       });
+        success: true,
+        message: "unAuthorized",
+      });
     }
 
     const data = jwt.verify(token, process.env.SECRET_KEY);

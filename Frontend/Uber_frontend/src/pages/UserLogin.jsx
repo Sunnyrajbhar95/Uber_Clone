@@ -41,10 +41,11 @@ function UserLogin() {
 
     if(response.status==200)
       {
-         navigate("/login")
+         navigate("/theme")
          toast.success("User loged in successfully 🎉");
          setuserdata(response.data.user)
-       console.log(userdata)
+         localStorage.setItem("token",response.data.user.token);
+         console.log(userdata)
       }
     setdata({
       email: "",

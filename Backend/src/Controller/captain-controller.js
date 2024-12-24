@@ -4,6 +4,7 @@ const BlacklistToken=require("../Model/blacklistedToken")
 
 const CreateCaptain = async (req, res) => {
   try {
+     console.log(req.body)
     const captain = await services.createCaptain(req.body);
     return res.status(200).json({
       captain,
@@ -22,6 +23,7 @@ const CreateCaptain = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+      console.log(req.body)
     const captain = await services.getcaptain(req.body);
     console.log(captain);
     return res.status(200).json({
@@ -44,6 +46,7 @@ const login = async (req, res) => {
 const capProfile = async (req, res) => {
   try {
     const captain = await services.captainProfile(req.captain);
+    console.log(captain,"Profile wala")
     return res.status(200).json({
       captain: {
         id: captain._id,
