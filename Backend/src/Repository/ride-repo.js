@@ -1,14 +1,17 @@
 const Ride=require("../Model/ride")
 
 class rideRepository{
-    async createRide(data)
+    async createRide({user,source,destination,fare,duration,distance,otp})
     {
         try{
          const ride=await Ride.create({
             user,
             source,
             destination,
-            vehicalType
+            fare,
+            duration,
+            distance,
+            otp
          })
          return ride;
         }

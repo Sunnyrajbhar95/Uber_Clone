@@ -27,8 +27,9 @@ const getDirection = async (req, res) => {
     const { source, destination } = req.query;
     console.log(req.query);
     const response = await getDistance({ source, destination });
+    console.log(response.routes[0].legs)
     return res.status(201).json({
-      response,
+      response:response.routes[0].legs,
       success: true,
     });
   } catch (err) {
@@ -45,6 +46,7 @@ const getSuggestion = async (req, res) => {
     const { input } = req.query;
     
     const response = await AutoCompleteSuggestion(input);
+    
     return res.status(200).json(response);
   } catch (err) {
     console.error(err);

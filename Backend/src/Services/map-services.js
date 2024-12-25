@@ -26,8 +26,9 @@ const getDistance = async ({ source, destination }) => {
   const url = `https://maps.gomaps.pro/maps/api/directions/json?destination=${destination}&origin=${source}&key=${apiKey}`;
   try {
     const response = await axios.get(url);
+    
     if (response.data.status === "OK") {
-      return response.data;
+      return response.data.routes[0].legs;
     } else {
       throw new Error("Unable to fetch data");
     }
