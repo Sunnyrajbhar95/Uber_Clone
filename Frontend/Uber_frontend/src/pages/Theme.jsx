@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import gsap from "gsap";
 import { IoIosArrowUp } from "react-icons/io";
 import Location from "./Location";
@@ -9,29 +9,79 @@ import { IoIosArrowDown } from "react-icons/io";
 import { FaLocationDot } from "react-icons/fa6";
 import { RiCurrencyFill } from "react-icons/ri";
 import { LuBuilding2 } from "react-icons/lu";
-
+import axios from "axios";
 
 function Theme() {
-  const [location, setLocation] = useState({
-    lat: "",
-    lng: "",
-  });
+  // const [location, setLocation] = useState({
+  //   lat: "",
+  //   lng: "",
+  // });
+
+  const [pickup, setPickup] = useState(null);
+  const [destination, setDestination] = useState(null);
+  const[fare,setfare]=useState({})
+  const [source, setSource] = useState(null);
+  const [target, setTarget] = useState(null);
   const [pannel, setPannel] = useState(false);
   const [vehicalPannel, setvehicalPannel] = useState(false);
-  const [confirmpannel,setconfirmpannel]=useState(false);
+  const [confirmpannel, setconfirmpannel] = useState(false);
   const btnRef = useRef();
   const arrowRef = useRef();
   const vehicalRef = useRef();
-  const conRef=useRef()
+  const conRef = useRef();
 
-  const handleChange = (e) => {
-    e.preventDefault();
-    setLocation((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // const handleChange = (e) => {
+  //   e.preventDefault();
+  //   setLocation((prev) => ({
+  //     ...prev,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  const handleSource = async (e) => {
+    setPickup(e.target.value);
+    const response = await axios.get(
+      `${import.meta.env.VITE_BASE_URL}/api/v1/get-suggestion`,
+      {
+        params: {
+          input: pickup,
+        },
+      }
+    );
+    setSource(response.data);
+  };
+  const handleDest = async (e) => {
+    setDestination(e.target.value);
+    const response = await axios.get(
+      `${import.meta.env.VITE_BASE_URL}/api/v1/get-suggestion`,
+      {
+        params: {
+          input: destination,
+        },
+      }
+    );
+    setTarget(response.data);
   };
 
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    
+    const token = localStorage.getItem("token");
+    const res = await axios.get(
+      `${
+        import.meta.env.VITE_BASE_URL
+      }/api/v1/get-fare?source=${pickup}&destination=${destination}`,
+      {
+        headers: {
+          "x-access": token, // Use quotes for header keys with special characters
+        },
+      }
+    );
+    setfare(res.data.response)
+    setvehicalPannel(true);
+    setPannel(false);
+    console.log(res.data.response)
+  };
   useEffect(() => {
     // Animate height using GSAP based on the `pannel` state
     if (pannel) {
@@ -96,7 +146,7 @@ function Theme() {
 
       {/* Form Section */}
       <div className="w-screen absolute top-0 h-full flex flex-col justify-end">
-        <div className="p-6 h-[30%] bg-white">
+        <div className="p-6 h-[35%] bg-white">
           <h4
             className="text-xl font-medium absolute right-10 opacity-0 "
             ref={arrowRef}
@@ -110,22 +160,28 @@ function Theme() {
           <form>
             <input
               type="text"
-              value={location.lat}
+              value={pickup}
               className="w-full px-10 mt-4 py-2 text-md placeholder:text-md placeholder:text-black bg-[#e8e1de] text-black rounded-md outline-none"
               name="lat"
               placeholder="Add your pick-up location"
               onClick={() => setPannel(true)} // +Expand panel on click
-              onChange={handleChange}
+              onChange={handleSource}
             />
             <input
               type="text"
-              value={location.lng}
+              value={destination}
               className="w-full mt-3 px-10 py-2 text-md placeholder:text-md placeholder:text-black bg-[#e8e1de] text-black rounded-md outline-none"
               name="lng"
               placeholder="Choose your destination"
               onClick={() => setPannel(true)} // Expand panel on click
-              onChange={handleChange}
+              onChange={handleDest}
             />
+            <button
+              className="w-full bg-black text-white py-2  flex justify-center rounded-lg mt-4"
+              onClick={onSubmit}
+            >
+              Find Trip
+            </button>
           </form>
         </div>
 
@@ -134,12 +190,23 @@ function Theme() {
           className="bg-white transition-all px-6 text-base font-medium" // Optional: Add Tailwind transition
           ref={btnRef}
         >
-          <Location setvehicalPannel={setvehicalPannel} setPannel={setPannel} />
+          <Location
+            // setvehicalPannel={setvehicalPannel}
+            // setPannel={setPannel}
+            source={source}
+            setSource={setSource}
+            setPickup={setPickup}
+            setDestination={setDestination}
+            pickup={pickup}
+            destination={destination}
+            setTarget={setTarget}
+            target={target}
+          />
         </div>
       </div>
 
       <div
-        className="w-full fixed bottom-0 z-10 bg-white p-4 translate-y-full "
+        className="w-full fixed bottom-0 z-10 bg-white p-4 translate-y-full"
         ref={vehicalRef}
       >
         <h5 className="text-2xl w-full flex justify-center ">
@@ -150,9 +217,12 @@ function Theme() {
             }}
           />
         </h5>
-        <div className=" flex items-center gap-4  border-2 border-gray-100 rounded-lg p-2 mt-2" onClick={()=>{
-            setconfirmpannel(true)
-        }}>
+        <div
+          className=" flex items-center gap-4  border-2 border-gray-100 rounded-lg p-2 mt-2"
+          onClick={() => {
+            setconfirmpannel(true);
+          }}
+        >
           <img
             className="w-20"
             src="https://i.pinimg.com/474x/8d/21/7b/8d217b1000b642005fea7b6fd6c3d967.jpg"
@@ -169,12 +239,15 @@ function Theme() {
             <h4 className="w-full text-xs">Affordable, compact rides</h4>
           </div>
           <h4 className="text-lg font-semibold flex items-center">
-            <MdCurrencyRupee /> 120.25
+            <MdCurrencyRupee /> {fare.car}
           </h4>
         </div>
-        <div className=" flex items-center gap-4  border-2 rounded-lg p-2 mt-2 border-gray-100 " onClick={()=>{
-           setconfirmpannel(true)
-        }}>
+        <div
+          className=" flex items-center gap-4  border-2 rounded-lg p-2 mt-2 border-gray-100 "
+          onClick={() => {
+            setconfirmpannel(true);
+          }}
+        >
           <img
             className="w-20"
             src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1649231091/assets/2c/7fa194-c954-49b2-9c6d-a3b8601370f5/original/Uber_Moto_Orange_312x208_pixels_Mobile.png"
@@ -192,12 +265,15 @@ function Theme() {
           </div>
           <h4 className="text-lg font-semibold flex items-center">
             <MdCurrencyRupee />
-            65
+            {fare.moto}
           </h4>
         </div>
-        <div className=" flex items-center gap-4  border-2 border-gray-100 rounded-lg p-2 mt-2"  onClick={()=>{
-           setconfirmpannel(true)
-        }}>
+        <div
+          className=" flex items-center gap-4  border-2 border-gray-100 rounded-lg p-2 mt-2"
+          onClick={() => {
+            setconfirmpannel(true);
+          }}
+        >
           <img
             className="w-20"
             src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
@@ -214,17 +290,20 @@ function Theme() {
             <h4 className="w-full text-xs">Affordable, compact rides</h4>
           </div>
           <h4 className="text-lg font-semibold flex items-center">
-            <MdCurrencyRupee /> 120.25
+            <MdCurrencyRupee />{fare.auto}
           </h4>
         </div>
       </div>
-      <div className="w-full fixed bottom-0 z-20 bg-white flex flex-col items-center p-2 translate-y-full" ref={conRef}>
-      <h5 className="text-2xl w-full flex justify-center ">
+      <div
+        className="w-full fixed bottom-0 z-20 bg-white flex flex-col items-center p-2 translate-y-full"
+        ref={conRef}
+      >
+        <h5 className="text-2xl w-full flex justify-center ">
           <IoIosArrowDown
             className="text-gray-300 text-center "
-            onClick={()=>{
-              setconfirmpannel(false)
-              setvehicalPannel(false)
+            onClick={() => {
+              setconfirmpannel(false);
+              setvehicalPannel(false);
             }}
           />
         </h5>
@@ -241,30 +320,39 @@ function Theme() {
           </h4>
           <div className="w-full border-b-2 border-gray-300 py-2 ">
             <h4 className="text-2xl font-bold">562/11-A</h4>
-            <p className="text-lg text-gray-500">kaikondrahali,Bengluru, Karantaka </p>
+            <p className="text-lg text-gray-500">
+              kaikondrahali,Bengluru, Karantaka{" "}
+            </p>
           </div>
-         
         </div>
-         <div className="w-full flex gap-3 items-center  p-3">
-             <h4 className="text-2xl"><LuBuilding2 /></h4>
-              <div className="w-full border-b-2 border-gray-300 py-2">
+        <div className="w-full flex gap-3 items-center  p-3">
+          <h4 className="text-2xl">
+            <LuBuilding2 />
+          </h4>
+          <div className="w-full border-b-2 border-gray-300 py-2">
+            <h4 className="text-2xl font-bold">Third Wave Coffee</h4>
+            <p className="text-lg text-gray-500">
+              78D 2K, Karanpur, Chhota Baghara
+            </p>
+          </div>
+        </div>
+        <div className="w-full flex gap-3 items-center  p-3">
+          <h4 className="text-2xl">
+            <RiCurrencyFill />
+          </h4>
+          <div className="flex justify-center flex-col w-full border-b-2 border-gray-300 py-2 ">
+            <div className="flex items-center">
               <h4 className="text-2xl font-bold">
-                  Third Wave Coffee
+                <MdCurrencyRupee />
               </h4>
-              <p className="text-lg text-gray-500">78D 2K, Karanpur, Chhota Baghara</p>
-              </div>
+              <p className="text-2xl font-bold">119</p>
+            </div>
+            <p className="text-lg text-gray-500">cash cash</p>
           </div>
-          <div className="w-full flex gap-3 items-center  p-3">
-            <h4 className="text-2xl"><RiCurrencyFill /></h4>
-             <div className="flex justify-center flex-col w-full border-b-2 border-gray-300 py-2 ">
-                  <div className="flex items-center"> 
-                  <h4 className="text-2xl font-bold"><MdCurrencyRupee /></h4>
-                  <p className="text-2xl font-bold">119</p>
-                  </div>
-                <p className="text-lg text-gray-500">cash cash</p>
-             </div>
-          </div>
-          <button className="w-full bg-green-500 mt-2 text-xl py-2 rounded-lg">Confirm</button>
+        </div>
+        <button className="w-full bg-green-500 mt-2 text-xl py-2 rounded-lg">
+          Confirm
+        </button>
       </div>
     </div>
   );

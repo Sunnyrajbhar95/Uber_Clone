@@ -79,4 +79,5 @@ class rideServices {
 }
 module.exports = {
   rideServices,
+  getFare
 };

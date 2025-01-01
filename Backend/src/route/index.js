@@ -15,7 +15,7 @@ const {
 } = require("../Controller/captain-controller");
 const isCaptain = require("../Middleware/captainAuth");
 const {getCoordinates,getDirection,getSuggestion}=require('../Controller/map-controller')
-const {CreateUserRide}=require("../Controller/ride-controller")
+const {CreateUserRide,getTotalFare}=require("../Controller/ride-controller")
 
 router.post(
   "/signup",
@@ -55,5 +55,6 @@ router.get("/get-location",isAuth ,getCoordinates);
 router.get("/route",isAuth,getDirection);
 router.get("/get-suggestion",getSuggestion)
 router.post('/create-ride',isAuth,CreateUserRide)
+router.get('/get-fare',isAuth,getTotalFare);
 
 module.exports = router;
